@@ -84,7 +84,7 @@ const sendMessageToTelegram = async (
   userId: string,
   retryCount = 3,
 ) => {
-  const url = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN || "7923406646:AAHqrCuY0aklAWqwG-i7JO5QPnb02Qh6gi0"}/sendMessage`;
+  const url = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN || ""}/sendMessage`;
 
   for (let attempt = 1; attempt <= retryCount; attempt++) {
     try {

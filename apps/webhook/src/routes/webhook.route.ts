@@ -19,7 +19,7 @@ const telegramWebhookRoute: FastifyPluginAsync = async (fastify) => {
   fastify.post<{
     Body: Update;
     Reply: TelegramWebhookApi["response"];
-  }>("/webhook", {}, async (request, reply) => {
+  }>("/", {}, async (request, reply) => {
     const body = request.body;
 
     if (!body) {
