@@ -1,6 +1,6 @@
 import { Currency, PurposeCode } from "@repo/queue-config/constant";
 import { Scenes } from "telegraf";
-import { BotContest } from "./botContex";
+import { BotContest } from "./botContext";
 import {
   createPayee,
   getDefaultWallet,
@@ -39,7 +39,6 @@ const transferScene = new Scenes.WizardScene<BotContest>(
     return ctx.wizard.next();
   },
 
-  // Step 2: Validate Email & Get Payee
   async (ctx) => {
     if (!ctx.message || !("text" in ctx.message)) {
       return ctx.reply("⚠️ Please enter a valid email address.");
@@ -59,7 +58,7 @@ const transferScene = new Scenes.WizardScene<BotContest>(
 
     ctx.session.transferData.email = email;
 
-    const payeeData = await getPayeeDetails(email, ctx.from.id);
+    const payeeData = await getPayeeDetails(ctx, email, ctx.from.id);
     if (!payeeData || payeeData.length === 0) {
       await ctx.reply(
         "⚠️ No payee found with this email. Please enter a new payee name.",
@@ -110,8 +109,8 @@ const transferScene = new Scenes.WizardScene<BotContest>(
       return ctx.reply("❌ Amount must be a positive number.");
     }
 
-    const MIN_AMOUNT = 100000000; // 100 USDC
-    const MAX_AMOUNT = 5000000000000; // 5,000,000 USDC
+    const MIN_AMOUNT = 100000000;
+    const MAX_AMOUNT = 5000000000000;
 
     if (amount < MIN_AMOUNT || amount > MAX_AMOUNT) {
       return ctx.reply(
@@ -131,7 +130,6 @@ const transferScene = new Scenes.WizardScene<BotContest>(
     return ctx.wizard.next();
   },
 
-  // Step 4: Validate Purpose
   async (ctx) => {
     if (!ctx.message || !("text" in ctx.message)) {
       return ctx.reply("⚠️ Please enter a valid purpose from the list.");
@@ -149,7 +147,7 @@ const transferScene = new Scenes.WizardScene<BotContest>(
     ctx.session.transferData.purposeCode = purposeInput as PurposeCode;
     ctx.session.transferData.currency = Currency.USDC;
 
-    const defaultWallet = await getDefaultWallet(ctx.from!.id);
+    const defaultWallet = await getDefaultWallet(ctx, ctx.from!.id);
     if (!defaultWallet) {
       await ctx.reply("⚠️ No wallet found. Please set up a wallet first.");
       return ctx.scene.leave();
@@ -181,6 +179,7 @@ const transferScene = new Scenes.WizardScene<BotContest>(
     return ctx.scene.leave();
   },
 );
+
 transferScene.command("cancel", async (ctx) => {
   await ctx.reply("❌ Process cancelled.");
   return ctx.scene.leave();

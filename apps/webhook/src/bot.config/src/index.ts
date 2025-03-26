@@ -1,9 +1,18 @@
 import { Scenes, session, Telegraf } from "telegraf";
-import { getAuthToken, pushToJobQueue } from "../../helperfunction/functions";
+import {
+  getAuthToken,
+  handleDepositEvent,
+  pusherClient,
+  pushToJobQueue,
+} from "../../helperfunction/functions";
 import { JobMethods } from "@repo/queue-config/jobTypes";
 import { transferScene } from "./scene/transfer";
-import { BotContest } from "./scene/botContex";
+import { BotContest } from "./scene/botContext";
 import { otpScene } from "./scene/Authscene";
+import { withDrawWalletScene } from "./scene/WalletWithdraw";
+import { offRampScene } from "./scene/bank_withdraw";
+import { getUserDetails } from "../../helperfunction/hook/hook";
+import { redisPuherSocketId } from "@repo/queue-config/jobQueue";
 
 const TELEGRAM_BOT_TOKEN =
   process.env.TELEGRAM_BOT_TOKEN ||
@@ -21,7 +30,6 @@ async function setupBot() {
     await bot.telegram.setMyCommands([
       { command: "start", description: "Start the bot" },
       { command: "help", description: "Get help and available commands" },
-      { command: "payment", description: "Process a payment" },
       { command: "auth", description: "Authenticate your account" },
       { command: "balance", description: "Check your balance" },
       { command: "cancel", description: "Cancel any ongoing process" },
@@ -29,15 +37,18 @@ async function setupBot() {
       { command: "kyc", description: "Get the KYC status" },
       { command: "wallets", description: "Wallet Details" },
       { command: "default_wallet", description: "Default Wallet Details" },
-      { command: "transaction_history", description: "Transcation Details" }, //TODO: make this as any menu based tx history
+      { command: "transaction_history", description: "Transcation Details" },
       { command: "recent_tx", description: "Recent tx details" },
-      { command: "setdefault", description: "Set the default wallet" }, //TODO: modify this
       { command: "transfer", description: "Send funds to an email address" },
       {
         command: "wallet_withdraw",
         description: "Send funds to an external wallet",
       },
       { command: "bank_transfer", description: "With funds to a Bank Account" },
+      {
+        command: "subscibe_notification",
+        description: "Subscibe to the desposite notification to your account",
+      },
     ]);
 
     console.log("✅ Bot commands set successfully!");
@@ -50,7 +61,12 @@ setupBot();
 
 bot.use(session());
 
-const stage = new Scenes.Stage<BotContest>([otpScene, transferScene]);
+const stage = new Scenes.Stage<BotContest>([
+  otpScene,
+  transferScene,
+  withDrawWalletScene,
+  offRampScene,
+]);
 
 bot.use(stage.middleware());
 
@@ -103,7 +119,6 @@ bot.help(async (ctx) =>
 );
 
 bot.command("auth", async (ctx) => ctx.scene.enter("generate_otp"));
-bot.command("payment", async (ctx) => ctx.reply("💳 Processing payment..."));
 bot.command("balance", async (ctx) => {
   try {
     await ctx.reply("💰 Fetching your balance...");
@@ -187,7 +202,6 @@ bot.command("recent_tx", async (ctx) => {
   }
 });
 
-//TODO: make this a a menu to search based on varios parametes
 bot.command("transaction_history", async (ctx) => {
   try {
     await pushToJobQueue(JobMethods.GetTransfers, {
@@ -203,16 +217,44 @@ bot.command("transaction_history", async (ctx) => {
   }
 });
 
-//TODO: set the default wallet command
-bot.command("setDefault", (ctx) => {
-  ctx.reply("from the set default command");
-});
-
 bot.command("transfer", async (ctx) => {
   ctx.scene.enter("transfer_wizard");
 });
-bot.command("wallet_withdraw", async (ctx) => {});
-bot.command("bank_transfer", async (ctx) => {});
+bot.command("wallet_withdraw", async (ctx) => {
+  ctx.scene.enter("walletWithDrawScene");
+});
+bot.command("bank_transfer", async (ctx) => {
+  ctx.scene.enter("bank_transfer");
+});
+
+bot.command("subscibe_notification", async (ctx) => {
+  const userDetails = await getUserDetails(ctx);
+  if (!userDetails) {
+    return ctx.reply("Can't proces you request. Try again...");
+  }
+  const { organizationId } = userDetails;
+
+  const pusherClientInstance = await pusherClient(userDetails);
+  const socketId = pusherClientInstance.connection.socket_id;
+
+  await redisPuherSocketId.set(
+    `pusherKey:${socketId}`,
+    JSON.stringify({ socketId, chatId: ctx.chat.id }),
+  );
+  const channel = pusherClientInstance.subscribe(
+    `private-org-${organizationId}`,
+  );
+
+  channel.bind(
+    "deposit",
+    async (eventData: { socketId: string; amount: number }) => {
+      console.log("🔔 New deposit event received for user:", eventData);
+      await handleDepositEvent(eventData);
+    },
+  );
+
+  return ctx.reply("✅ You are now subscribed to deposit notifications!");
+});
 
 process.once("SIGINT", () => {
   console.log("🛑 Bot shutting down (SIGINT)...");

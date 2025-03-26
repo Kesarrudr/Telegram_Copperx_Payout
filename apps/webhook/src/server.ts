@@ -22,8 +22,8 @@ app.listen({ host: HOST, port: PORT }, async (err, address) => {
   try {
     const listener = await ngrok.connect({
       addr: PORT,
-      authtoken: "2ubWPupI6w2DCwaPWwbZpLB5rT3_3XTWVrWdhfXn34ZvTHiKp",
-      domain: "desired-gar-readily.ngrok-free.app",
+      authtoken: process.env.NGROK_AUTHTOKEN,
+      domain: process.env.NGROK_DOMAIN,
     });
     console.log(`Ingress established at: ${listener.url()}`);
   } catch (error) {

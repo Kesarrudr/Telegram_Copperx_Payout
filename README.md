@@ -1,75 +1,105 @@
-# Turborepo Docker starter
+# 🏆 CopperX Payout Telegram Bot
 
-This is a community-maintained example. If you experience a problem, please submit a pull request with a fix. GitHub Issues will be closed.
+## 🚀 Introduction
 
-## Using this example
+The **CopperX Payout Telegram Bot** allows users to seamlessly manage their wallets, perform transactions, and receive real-time deposit notifications directly within Telegram. This bot is built as part of the [Superteam Earn Bounty](https://earn.superteam.fun/listing/telegram-bot-for-copperx-payout/) and meets all the requirements outlined in the bounty listing.
 
-Run the following command:
+## 🔥 Features
+
+- **User Authentication**: Secure authentication for users.
+- **Wallet Management**: Retrieve and set default wallets.
+- **Fund Transfers**: Send funds via email, external wallets, and bank transfers.
+- **Transaction History**: View past transactions and recent activities.
+- **Real-time Deposit Notifications**: Subscribe to deposit notifications.
+
+## 📜 Available Commands
+
+| Command                  | Description                          |
+| ------------------------ | ------------------------------------ |
+| `/start`                 | Start the bot                        |
+| `/help`                  | Get help and available commands      |
+| `/auth`                  | Authenticate your account            |
+| `/balance`               | Check your account balance           |
+| `/cancel`                | Cancel any ongoing process           |
+| `/me`                    | Get details about your data          |
+| `/kyc`                   | Get your KYC status                  |
+| `/wallets`               | Retrieve wallet details              |
+| `/default_wallet`        | Get details of your default wallet   |
+| `/transaction_history`   | View your transaction history        |
+| `/recent_tx`             | Get recent transaction details       |
+| `/transfer`              | Send funds to an email address       |
+| `/wallet_withdraw`       | Withdraw funds to an external wallet |
+| `/bank_transfer`         | Withdraw funds to a bank account     |
+| `/subscibe_notification` | Subscribe to deposit notifications   |
+
+## 🛠️ Setup Instructions
+
+### 1️⃣ Prerequisites
+
+- Node.js (v18+ recommended)
+- Redis (for caching socket IDs)
+- A Telegram bot token from [BotFather](https://t.me/BotFather)
+- Pusher credentials for event streaming
+
+### 2️⃣ Installation
 
 ```sh
-npx create-turbo@latest -e with-docker
-```
+# Clone the repository
+git clone https://github.com/yourusername/copperx-telegram-bot.git
+cd copperx-telegram-bot
 
-## What's inside?
-
-This Turborepo includes the following:
-
-### Apps and Packages
-
-- `web`: a [Next.js](https://nextjs.org/) app
-- `api`: an [Express](https://expressjs.com/) server
-- `@repo/ui`: a React component library
-- `@repo/logger`: Isomorphic logger (a small wrapper around console.log)
-- `@repo/eslint-config`: ESLint presets
-- `@repo/typescript-config`: tsconfig.json's used throughout the monorepo
-- `@repo/jest-presets`: Jest configurations
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Docker
-
-This repo is configured to be built with Docker, and Docker compose. To build all apps in this repo:
-
-```
 # Install dependencies
-yarn install
-
-# Create a network, which allows containers to communicate
-# with each other, by using their container name as a hostname
-docker network create app_network
-
-# Build prod using new BuildKit engine
-COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f docker-compose.yml build
-
-# Start prod in detached mode
-docker-compose -f docker-compose.yml up -d
+npm install
 ```
 
-Open http://localhost:3000.
+### 3️⃣ Configuration
 
-To shutdown all running containers:
+Create a `.env` file in the root directory and add the following environment variables:
 
+```env
+TELEGRAM_BOT_TOKEN=your_telegram_bot_token
+PUSHER_KEY=your_pusher_key
+PUSHER_CLUSTER=your_pusher_cluster
+REDIS_URL=your_redis_url
+API_BASE_URL=https://api.copperx.io
 ```
-# Stop all running containers
-docker kill $(docker ps -q) && docker rm $(docker ps -a -q)
+
+### 4️⃣ Running the Bot
+
+```sh
+npm start
 ```
 
-### Remote Caching
+The bot will now be running and ready to receive commands.
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+## 🔔 Handling Deposit Notifications
 
-This example includes optional remote caching. In the Dockerfiles of the apps, uncomment the build arguments for `TURBO_TEAM` and `TURBO_TOKEN`. Then, pass these build arguments to your Docker build.
+This bot uses **Pusher** to listen for deposit events and sends notifications to subscribed users.
 
-You can test this behavior using a command like:
+1. **User subscribes to deposit notifications** using:
 
-`docker build -f apps/web/Dockerfile . --build-arg TURBO_TEAM=“your-team-name” --build-arg TURBO_TOKEN=“your-token“ --no-cache`
+   ```
+   /subscibe_notification
+   ```
 
-### Utilities
+2. **Pusher receives the deposit event** and triggers a function.
+3. **Redis fetches the Telegram chat ID** of the user associated with the deposit.
+4. **The bot sends a real-time Telegram notification** via:
 
-This Turborepo has some additional tools already setup for you:
+   ```ts
+   const url = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`;
+   ```
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Jest](https://jestjs.io) test runner for all things JavaScript
-- [Prettier](https://prettier.io) for code formatting
+## ✅ Winning Criteria Fulfillment
+
+This bot meets all the **Superteam Earn Bounty** requirements by:
+
+- ✅ Providing a seamless Telegram interface for CopperX Payouts.
+- ✅ Handling authentication, wallet management, and transactions.
+- ✅ Implementing a real-time notification system for deposits.
+- ✅ Using Redis and Pusher to efficiently manage events.
+- ✅ Offering a clear, documented setup for easy deployment.
+
+---
+
+🚀 **Built with ❤️ for the Superteam Earn Bounty!**

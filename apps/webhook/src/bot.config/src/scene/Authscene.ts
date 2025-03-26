@@ -1,7 +1,7 @@
 import { Markup, Scenes } from "telegraf";
 import { pushToJobQueue } from "../../../helperfunction/functions";
 import { JobMethods } from "@repo/queue-config/jobTypes";
-import { BotContest } from "./botContex";
+import { BotContest } from "./botContext";
 
 export interface UserData {
   userId: number;

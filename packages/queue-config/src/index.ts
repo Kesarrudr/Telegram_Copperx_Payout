@@ -20,3 +20,8 @@ export const redisSessionClient = new Redis(process.env.REDIS_URL || "", {
   maxRetriesPerRequest: null,
   tls: {},
 });
+
+export const redisPuherSocketId = new Redis(process.env.REDIS_URL || "", {
+  maxRetriesPerRequest: null,
+  tls: {},
+});

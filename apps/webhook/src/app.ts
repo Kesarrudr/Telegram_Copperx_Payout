@@ -12,7 +12,6 @@ const app: FastifyPluginAsync = async (fastify): Promise<void> => {
     routeParams: true,
   });
 
-  console.log("printing routes");
   fastify.ready(() => fastify.log.info(fastify.printRoutes()));
 };
 
