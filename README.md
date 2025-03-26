@@ -4,6 +4,8 @@
 
 The **CopperX Payout Telegram Bot** allows users to seamlessly manage their wallets, perform transactions, and receive real-time deposit notifications directly within Telegram. This bot is built as part of the [Superteam Earn Bounty](https://earn.superteam.fun/listing/telegram-bot-for-copperx-payout/) and meets all the requirements outlined in the bounty listing.
 
+🔗 **Check the deployed bot here:** [@copper_X_payoutBot](https://t.me/copper_X_payoutBot)
+
 ## 🔥 Features
 
 - **User Authentication**: Secure authentication for users.
@@ -90,8 +92,6 @@ This bot uses **Pusher** to listen for deposit events and sends notifications to
    const url = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`;
    ```
 
-## ✅ Winning Criteria Fulfillment
-
 This bot meets all the **Superteam Earn Bounty** requirements by:
 
 - ✅ Providing a seamless Telegram interface for CopperX Payouts.
@@ -100,6 +100,6 @@ This bot meets all the **Superteam Earn Bounty** requirements by:
 - ✅ Using Redis and Pusher to efficiently manage events.
 - ✅ Offering a clear, documented setup for easy deployment.
 
----
+## 💬 Need Help?
 
-🚀 **Built with ❤️ for the Superteam Earn Bounty!**
+---

@@ -75,10 +75,12 @@ new Worker<JobsData<JobMethods>>(
         case JobMethods.GetTransfers: {
           const data = job.data as JobsData<JobMethods.GetTransfers>;
           await getTransfer(data.data);
+          return { success: true };
         }
         case JobMethods.RecentTranscation: {
           const data = job.data as JobsData<JobMethods.RecentTranscation>;
           await getlast_10_transfers(data.data);
+          return { success: true };
         }
 
         default:

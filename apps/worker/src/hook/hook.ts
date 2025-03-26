@@ -288,11 +288,13 @@ const getTransfer = async (data: GetTransfersData) => {
     }`;
 
     await sendMessageToTelegram(message, data.userId);
+    return;
   } else {
     await sendMessageToTelegram(
       "🚫 *No transfers found.* You haven't made any transfers yet.",
       data.userId,
     );
+    return;
   }
 };
 
@@ -327,11 +329,13 @@ const getlast_10_transfers = async (data: OnlyUserIdData) => {
     }`;
 
     await sendMessageToTelegram(message, data.userId);
+    return;
   } else {
     await sendMessageToTelegram(
       "🚫 *No transfers found.* You haven't made any transfers yet.",
       data.userId,
     );
+    return;
   }
 };
 
