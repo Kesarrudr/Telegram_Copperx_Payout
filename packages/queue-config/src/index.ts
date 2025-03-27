@@ -1,27 +1,27 @@
 import { Queue } from "bullmq";
-import IORedis, { Redis } from "ioredis";
+import IORedis from "ioredis";
 import { JobMethods, JobsData } from "./job.type/types";
 
-export const connection = new IORedis(process.env.REDIS_URL || "", {
+const redisConnection = new IORedis(process.env.REDIS_URL || "", {
+  connectTimeout: 10000,
   maxRetriesPerRequest: null,
   tls: {},
+  retryStrategy: (times) => Math.min(times * 50, 2000),
 });
 
-export const JobQueue = new Queue<JobsData<JobMethods>>("jobQueue", {
-  connection,
+redisConnection.on("error", (err) => {
+  console.error("[Redis Error]:", err);
+});
+
+const JobQueue = new Queue<JobsData<JobMethods>>("jobQueue", {
+  connection: redisConnection,
   defaultJobOptions: {
     removeOnComplete: true,
-    //WARNING: currenly removing falied jobs
     removeOnFail: true,
   },
 });
 
-export const redisSessionClient = new Redis(process.env.REDIS_URL || "", {
-  maxRetriesPerRequest: null,
-  tls: {},
-});
+const redisSessionClient = redisConnection;
+const redisPuherSocketId = redisConnection;
 
-export const redisPuherSocketId = new Redis(process.env.REDIS_URL || "", {
-  maxRetriesPerRequest: null,
-  tls: {},
-});
+export { redisConnection, redisPuherSocketId, redisSessionClient, JobQueue };
